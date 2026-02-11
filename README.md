@@ -1,5 +1,7 @@
 # miotts-cockpit
 
+**English** | [日本語](README-ja.md)
+
 Web-based control panel for self-hosting [MioTTS](https://github.com/Aratako/MioTTS-Inference) with vLLM.
 
 Start/stop servers, switch models, manage reference audio presets, and synthesize speech — all from a single browser tab. Designed for personal GPU servers accessed remotely (e.g. via Tailscale).
@@ -12,7 +14,7 @@ Start/stop servers, switch models, manage reference audio presets, and synthesiz
 - **Log Viewer** — Real-time logs with health-check filtering and client timezone conversion
 - **Reference Audio Presets** — Upload audio files, auto-convert to speaker embeddings (.pt)
 - **TTS Playground** — Synthesize speech with adjustable parameters and instant playback
-- **Mobile Friendly** — Responsive dark UI, works on phone browsers
+- **Mobile Friendly** — Responsive UI with animations, works on phone browsers
 
 ## GPU Requirements
 
@@ -44,7 +46,7 @@ All models run comfortably in real-time. Codec decoding adds ~0.05s overhead reg
 ## Quick Start
 
 ```bash
-git clone https://github.com/sakasegawa/miotts-cockpit.git
+git clone https://github.com/nyosegawa/miotts-cockpit.git
 cd miotts-cockpit
 make setup   # installs Python + frontend dependencies, copies example config
 
