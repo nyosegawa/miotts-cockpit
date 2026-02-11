@@ -1,0 +1,17 @@
+[project]
+name = "miotts-cockpit"
+version = "0.1.0"
+description = "Web-based control panel for self-hosting MioTTS with vLLM"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+    "httpx>=0.28",
+    "pyyaml>=6.0",
+    "python-multipart>=0.0.18",
+]
+
+[project.scripts]
+miotts-panel = "server:main"

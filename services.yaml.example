@@ -1,0 +1,88 @@
+# =============================================================================
+# MioTTS Cockpit — Service Configuration
+# =============================================================================
+# Copy this file to services.yaml and edit to match your environment:
+#   cp services.yaml.example services.yaml
+#
+# All paths (cwd, presets_dir) can be absolute or relative to this file's
+# directory. Use absolute paths to avoid ambiguity.
+# =============================================================================
+
+services:
+  # --- vLLM: OpenAI-compatible LLM server for speech token generation --------
+  vllm:
+    name: "vLLM"
+    command:
+      - "uv"
+      - "run"
+      - "python"
+      - "-m"
+      - "vllm.entrypoints.openai.api_server"
+      - "--model"
+      - "Aratako/MioTTS-0.4B"      # See "models" section below for options
+      - "--max-model-len"
+      - "1024"
+      - "--gpu-memory-utilization"
+      - "0.3"                        # Adjust per model — see "models" below
+      - "--port"
+      - "8000"
+    cwd: "/path/to/MioTTS-Inference"  # <-- CHANGE THIS
+    # Uncomment and adjust if nvcc / CUDA toolkit is not on your PATH:
+    # env:
+    #   PATH: "/usr/local/cuda/bin:${PATH}"
+    health_url: "http://localhost:8000/health"
+    port: 8000
+    startup_timeout: 180              # vLLM model loading can be slow
+    startup_poll_interval: 5
+
+  # --- MioTTS API: text-to-speech server using MioCodec ----------------------
+  miotts:
+    name: "MioTTS API"
+    command:
+      - "uv"
+      - "run"
+      - "python"
+      - "run_server.py"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8001"
+      - "--llm-base-url"
+      - "http://localhost:8000/v1"
+      - "--llm-model"
+      - "Aratako/MioTTS-0.4B"        # Must match the vLLM model above
+      - "--device"
+      - "cuda"
+    cwd: "/path/to/MioTTS-Inference"  # <-- CHANGE THIS (same as vllm.cwd)
+    health_url: "http://localhost:8001/health"
+    port: 8001
+    depends_on: ["vllm"]              # Cockpit starts vLLM first, then MioTTS
+    startup_timeout: 60
+    startup_poll_interval: 3
+
+
+# =============================================================================
+# MioTTS-specific settings
+# =============================================================================
+miotts:
+  presets_dir: "/path/to/MioTTS-Inference/presets"  # <-- CHANGE THIS
+  api_url: "http://localhost:8001"
+
+  # Available models for switching from the UI.
+  # The cockpit will update --model / --llm-model and restart both services.
+  #
+  # VRAM requirements (approximate):
+  #   0.1B — ~2 GB  (gpu_memory_utilization: 0.3)
+  #   0.4B — ~3 GB  (gpu_memory_utilization: 0.3)  ← recommended for 8 GB GPUs
+  #   0.6B — ~5 GB  (gpu_memory_utilization: 0.5)
+  #   1.2B — ~8 GB+ (does not fit on 8 GB GPUs)
+  models:
+    - id: "Aratako/MioTTS-0.1B"
+      name: "MioTTS 0.1B"
+      gpu_memory_utilization: "0.3"
+    - id: "Aratako/MioTTS-0.4B"
+      name: "MioTTS 0.4B"
+      gpu_memory_utilization: "0.3"
+    - id: "Aratako/MioTTS-0.6B"
+      name: "MioTTS 0.6B"
+      gpu_memory_utilization: "0.5"

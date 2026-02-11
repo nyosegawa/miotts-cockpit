@@ -1,0 +1,14 @@
+[Unit]
+Description=MioTTS Cockpit
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=__WORKDIR__
+ExecStart=/usr/bin/env uv run python server.py
+Restart=on-failure
+RestartSec=5
+Environment=PATH=/usr/local/cuda/bin:/usr/local/bin:%h/.local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
